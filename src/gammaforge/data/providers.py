@@ -1,3 +1,5 @@
+"""Data provider implementations."""
+
 from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple
@@ -113,37 +115,76 @@ class CBOEDataProvider(DataProvider):
     
     def get_option_chain(self, ticker: str) -> Tuple[float, pd.DataFrame]:
         """Get option chain data from CBOE."""
-        for url_pattern in CBOE_URL_PATTERNS:
+        errors = []
+        
+        # Try both URL patterns
+        patterns = [
+            CBOE_URL_PATTERNS["option_chain_underscore"],  # Try underscore version first
+            CBOE_URL_PATTERNS["option_chain_primary"]      # Then try primary version
+        ]
+        
+        for pattern in patterns:
             try:
-                url = url_pattern.format(ticker)
+                url = pattern.format(symbol=ticker)
+                logger.info(f"Trying URL: {url}")
                 response = requests.get(url)
                 response.raise_for_status()
                 data = response.json()
                 
-                # Convert to pandas DataFrame
-                df = pd.DataFrame.from_dict(data)
-                spot_price = df.loc["current_price", "data"]
-                option_data = pd.DataFrame(df.loc["options", "data"])
+                if "data" not in data:
+                    raise ValueError("Invalid response format: 'data' field missing")
+                    
+                # Extract spot price
+                spot_price = float(data["data"].get("current_price", 0))
+                if spot_price == 0:
+                    raise ValueError("Invalid spot price")
+                    
+                # Extract option data
+                options = data["data"].get("options", [])
+                if not options:
+                    raise ValueError("No options data found")
+                    
+                # Convert to DataFrame
+                option_data = pd.DataFrame(options)
                 
-                # Process option data
-                option_data["type"] = option_data.option.str.extract(r"\d([A-Z])\d")
-                option_data["strike"] = option_data.option.str.extract(r"\d[A-Z](\d+)\d\d\d").astype(float)
+                # Ensure required columns exist
+                required_columns = ["gamma", "open_interest", "volume", "iv"]
+                for col in required_columns:
+                    if col not in option_data.columns:
+                        option_data[col] = None
+                        
+                # Extract option type and strike from option symbol
+                option_data["type"] = option_data["option"].str[-9].map({"C": "C", "P": "P"})
+                option_data["strike"] = option_data["option"].str[-8:-3].astype(float)
                 option_data["expiration"] = pd.to_datetime(
-                    option_data.option.str.extract(r"[A-Z](\d+)").astype(str),
+                    option_data["option"].str[-15:-9],
                     format="%y%m%d"
                 )
                 
+                # Filter out invalid data
+                option_data = option_data[
+                    (option_data["strike"] > 0) & 
+                    (option_data["type"].isin(["C", "P"]))
+                ]
+                
+                if option_data.empty:
+                    raise ValueError("No valid options data after filtering")
+                    
                 return spot_price, option_data
                 
-            except requests.RequestException as e:
-                logger.warning(f"Failed to fetch from {url}: {e}")
+            except Exception as e:
+                errors.append(f"{pattern}: {str(e)}")
                 continue
-                
-        raise ValueError(f"Could not fetch data from any CBOE endpoint")
+        
+        # If we get here, both URLs failed
+        error_msg = "\n".join(errors)
+        logger.error(f"Failed to fetch from CBOE: {error_msg}")
+        raise ValueError(f"Could not fetch data from CBOE endpoint: {error_msg}")
         
     def get_historical_data(self, ticker: str, start_date: datetime, end_date: datetime) -> pd.DataFrame:
         """Get historical options data from CBOE."""
-        raise NotImplementedError("Historical data not available from CBOE provider")
+        logger.warning("CBOE historical data API is not available. Consider using a paid data provider or storing daily snapshots.")
+        return pd.DataFrame()  # Return empty DataFrame
 
 def get_data_provider(use_polygon: bool = True) -> DataProvider:
     """Factory function to get the appropriate data provider."""

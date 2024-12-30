@@ -7,6 +7,7 @@ from ..visualization.plots import GEXVisualizer
 from ..data.storage import HistoricalGEXTracker
 from ..visualization.historical import HistoricalGEXVisualizer
 from ..utils.logger import get_logger
+from ..utils.formatting import format_billions
 
 logger = get_logger(__name__)
 
@@ -15,9 +16,8 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Gamma Exposure (GEX) Analysis Tool")
     
     parser.add_argument(
-        "--ticker",
+        "ticker",
         type=str,
-        required=True,
         help="Ticker symbol to analyze (e.g., SPX, SPY)"
     )
     
@@ -64,29 +64,38 @@ def main():
         fetcher = OptionDataFetcher(args.ticker, use_polygon=args.use_polygon)
         spot_price, option_data = fetcher.get_option_data()
         
+        logger.info(f"Option data shape: {option_data.shape}")
+        logger.info(f"Option data columns: {option_data.columns}")
+        logger.info(f"First few rows of option data:\n{option_data.head()}")
+        
         # Calculate GEX
         calculator = GEXCalculator(spot_price, option_data)
         total_gex = calculator.get_total_gex()
         logger.info(f"Total GEX for {args.ticker}: {format_billions(total_gex)}")
         
-        # Get visualizer
+        # Calculate GEX metrics
+        gex_by_strike = calculator.get_gex_by_strike()
+        gex_by_expiry = calculator.get_gex_by_expiry()
+        gex_surface = calculator.get_gex_surface()
+        
+        logger.info(f"GEX surface shape: {gex_surface.shape}")
+        logger.info(f"GEX surface index: {gex_surface.index}")
+        logger.info(f"GEX surface columns: {gex_surface.columns}")
+        
+        # Create visualizer
         visualizer = GEXVisualizer(args.ticker)
         
         # Generate standard plots
         if args.plot_type in ["strike", "all", "extended", "historical"]:
-            gex_by_strike = calculator.get_gex_by_strike()
             visualizer.plot_gex_by_strike(gex_by_strike)
             
         if args.plot_type in ["expiry", "all", "extended", "historical"]:
-            gex_by_expiry = calculator.get_gex_by_expiry()
             visualizer.plot_gex_by_expiry(gex_by_expiry)
             
         if args.plot_type in ["surface", "all", "extended", "historical"]:
-            gex_surface = calculator.get_gex_surface()
             visualizer.plot_gex_surface(gex_surface)
             
         if args.plot_type in ["interactive", "all", "extended", "historical"]:
-            gex_surface = calculator.get_gex_surface()
             visualizer.plot_interactive_surface(gex_surface)
             
         # Generate extended analysis if requested
@@ -103,11 +112,14 @@ def main():
             weighted_days = calculator.get_weighted_expiration()
             visualizer.print_weighted_expiration(weighted_days)
             
-            # IV profile (if available)
+            # IV profile
             iv_data = calculator.get_iv_profile()
-            if iv_data is not None:
-                visualizer.plot_iv_profile(iv_data)
-                
+            visualizer.plot_iv_profile(iv_data)
+            
+            # Top strikes
+            top_strikes = calculator.get_top_strikes()
+            visualizer.print_top_strikes(top_strikes)
+            
         # Generate historical analysis if requested
         if args.plot_type == "historical":
             # Initialize historical tracker and visualizer

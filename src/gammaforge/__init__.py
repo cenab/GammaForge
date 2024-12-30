@@ -1,5 +1,5 @@
 """
-GEX Tracker - A tool for analyzing Gamma Exposure in options markets.
+GammaForge - A professional tool for analyzing Gamma Exposure in options markets.
 """
 
 from .core import (
@@ -10,42 +10,30 @@ from .core import (
     GEXSurface,
     # Calculator
     GEXCalculator,
-    calculate_gex,
-    calculate_gex_by_strike,
-    calculate_gex_by_expiry,
-    calculate_gex_surface
+    # Advanced GEX
+    compute_call_put_gex,
+    compute_gex_by_moneyness,
+    compute_cumulative_gex,
+    find_zero_gamma,
+    compute_weighted_metrics,
+    # Black-Scholes
+    black_scholes_greeks,
+    compute_option_greeks,
+    # Scenarios
+    scenario_spot_shock,
+    scenario_vol_shock,
+    scenario_time_decay,
+    scenario_all,
+    # Flow Analysis
+    compare_oi_changes,
+    analyze_volume_vs_oi,
+    track_large_trades,
+    aggregate_flow_metrics,
+    # Utilities
+    calculate_price_bounds,
+    get_one_year_date
 )
-from .data import (
-    # Data Fetching
-    fetch_option_chain,
-    fetch_historical_data,
-    fetch_realtime_data,
-    # Cache Management
-    cache_data,
-    load_cached_data,
-    clear_cache,
-    is_cache_valid,
-    # Data Processing
-    process_option_data,
-    process_historical_data,
-    process_realtime_update
-)
-from .visualization import (
-    # Static Plots
-    plot_gex_by_strike,
-    plot_gex_by_expiry,
-    plot_gex_surface,
-    plot_historical_gex,
-    plot_gex_heatmap,
-    # Interactive Plots
-    create_interactive_surface,
-    create_interactive_heatmap,
-    create_interactive_dashboard,
-    # Reporting
-    generate_gex_report,
-    generate_historical_report,
-    generate_realtime_report
-)
+
 from .utils import (
     # Dates
     get_market_days_between,
@@ -75,8 +63,8 @@ from .utils import (
 )
 
 __version__ = '0.1.0'
-__author__ = 'Batu Cam'
-__email__ = 'batuhan.camlica@gmail.com'
+__author__ = 'Cenab Batu Bora'
+__email__ = 'hello@batubora.com'
 
 __all__ = [
     # Package info
@@ -90,37 +78,28 @@ __all__ = [
     'GEXSurface',
     # Core - Calculator
     'GEXCalculator',
-    'calculate_gex',
-    'calculate_gex_by_strike',
-    'calculate_gex_by_expiry',
-    'calculate_gex_surface',
-    # Data - Fetching
-    'fetch_option_chain',
-    'fetch_historical_data',
-    'fetch_realtime_data',
-    # Data - Cache
-    'cache_data',
-    'load_cached_data',
-    'clear_cache',
-    'is_cache_valid',
-    # Data - Processing
-    'process_option_data',
-    'process_historical_data',
-    'process_realtime_update',
-    # Visualization - Static
-    'plot_gex_by_strike',
-    'plot_gex_by_expiry',
-    'plot_gex_surface',
-    'plot_historical_gex',
-    'plot_gex_heatmap',
-    # Visualization - Interactive
-    'create_interactive_surface',
-    'create_interactive_heatmap',
-    'create_interactive_dashboard',
-    # Visualization - Reporting
-    'generate_gex_report',
-    'generate_historical_report',
-    'generate_realtime_report',
+    # Core - Advanced GEX
+    'compute_call_put_gex',
+    'compute_gex_by_moneyness',
+    'compute_cumulative_gex',
+    'find_zero_gamma',
+    'compute_weighted_metrics',
+    # Core - Black-Scholes
+    'black_scholes_greeks',
+    'compute_option_greeks',
+    # Core - Scenarios
+    'scenario_spot_shock',
+    'scenario_vol_shock',
+    'scenario_time_decay',
+    'scenario_all',
+    # Core - Flow Analysis
+    'compare_oi_changes',
+    'analyze_volume_vs_oi',
+    'track_large_trades',
+    'aggregate_flow_metrics',
+    # Core - Utilities
+    'calculate_price_bounds',
+    'get_one_year_date',
     # Utils - Dates
     'get_market_days_between',
     'get_next_market_day',

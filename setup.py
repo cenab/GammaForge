@@ -1,9 +1,9 @@
-"""Setup configuration for GEX Tracker package."""
+"""Setup configuration for GammaForge package."""
 
 from setuptools import setup, find_packages
 
 # Read version from package
-with open('src/gex_tracker/__init__.py', 'r') as f:
+with open('src/gammaforge/__init__.py', 'r') as f:
     for line in f:
         if line.startswith('__version__'):
             version = line.split('=')[1].strip().strip("'").strip('"')

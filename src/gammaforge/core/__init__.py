@@ -1,4 +1,4 @@
-"""Core functionality for GEX Tracker."""
+"""Core functionality for GammaForge."""
 
 from .models import (
     OptionData,
@@ -6,13 +6,7 @@ from .models import (
     HistoricalGEX,
     GEXSurface
 )
-from .calculator import (
-    GEXCalculator,
-    calculate_gex,
-    calculate_gex_by_strike,
-    calculate_gex_by_expiry,
-    calculate_gex_surface
-)
+from .calculator import GEXCalculator
 from .advanced_gex import (
     compute_call_put_gex,
     compute_gex_by_moneyness,
@@ -49,10 +43,6 @@ __all__ = [
     'GEXSurface',
     # Calculator
     'GEXCalculator',
-    'calculate_gex',
-    'calculate_gex_by_strike',
-    'calculate_gex_by_expiry',
-    'calculate_gex_surface',
     # Advanced GEX
     'compute_call_put_gex',
     'compute_gex_by_moneyness',

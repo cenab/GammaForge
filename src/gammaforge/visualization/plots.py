@@ -52,7 +52,9 @@ class GEXVisualizer:
         fig = plt.figure(figsize=(12, 8))
         ax = fig.add_subplot(111, projection="3d")
         
-        X, Y = np.meshgrid(gex_surface.columns, gex_surface.index)
+        # Convert datetime index to numeric values for plotting
+        numeric_dates = dates.date2num(gex_surface.index)
+        X, Y = np.meshgrid(gex_surface.columns.astype(float), numeric_dates)
         Z = gex_surface.values
         
         surf = ax.plot_surface(
@@ -64,6 +66,10 @@ class GEXVisualizer:
         ax.set_xlabel("Strike Price", fontweight="heavy")
         ax.set_ylabel("Expiration Date", fontweight="heavy")
         ax.set_zlabel("Gamma Exposure (M$ / %)", fontweight="heavy")
+        
+        # Format the date ticks
+        ax.yaxis.set_major_formatter(dates.DateFormatter('%Y-%m-%d'))
+        plt.setp(ax.yaxis.get_majorticklabels(), rotation=45)
         
         plt.colorbar(surf)
         plt.title(f"{self.ticker} GEX Surface", fontweight="heavy")
