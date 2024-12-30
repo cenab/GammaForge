@@ -36,7 +36,6 @@ ENV/
 
 # Project specific
 .env
-data/
 logs/
 *.db
 *.sqlite3
