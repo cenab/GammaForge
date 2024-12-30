@@ -14,18 +14,18 @@ with open('README.md', 'r') as f:
     long_description = f.read()
 
 setup(
-    name='gex-tracker',
-    version=version,
-    author='Batu Cam',
-    author_email='batuhan.camlica@gmail.com',
-    description='A tool for analyzing Gamma Exposure in options markets',
+    name="gammaforge",
+    version="0.1.0",
+    author="Cenab Batu Bora",
+    author_email="hello@batubora.com",
+    description="A professional tool for analyzing Gamma Exposure (GEX) in options markets",
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/batucam/gex-tracker',
+    url='https://github.com/cenab/GammaForge',
     packages=find_packages(where='src'),
     package_dir={'': 'src'},
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Financial and Insurance Industry',
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
@@ -60,8 +60,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'gex-tracker=gex_tracker.main:main',
-            'gex-tracker-rt=gex_tracker.realtime_cli:main'
+            'gammaforge=gammaforge.cli.main:main',
+            'gammaforge-rt=gammaforge.cli.realtime:main'
         ]
     }
 ) 
